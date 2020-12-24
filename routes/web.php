@@ -55,5 +55,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/user-edit/{uid}', [ACLController::class, 'userEdit'])->name('user.edit');
     Route::post('/user-update/{uid}', [ACLController::class, 'userUpdate'])->name('user.update');
 
+    Route::get('/make_user_in_active/{uid}', [ACLController::class, 'makeUserInactive'])->name('make.user.in.active');
+    Route::get('/make_user_active/{uid}', [ACLController::class, 'makeUserActive'])->name('make.user.active');
+    Route::post('/make_user_active/{uid}', [ACLController::class, 'makeUserActiveUpdate'])->name('make.user.active');
+
+
+
 
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Usercreatehistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -188,6 +189,9 @@ class ACLController extends Controller
     {
         if (Auth::user()->isAbleTo('user')) {
             $users = User::where('id', '>', '3')->get();
+            foreach ($users as $u){
+                $u['role'] = $u->roles()->get();
+            }
             $roles = Role::where('id', '>', '3')->get();
             return view('users.index', compact('users', 'roles'));
         } else {
@@ -215,6 +219,11 @@ class ACLController extends Controller
                 foreach ($request->roles as $m) {
                     $u->attachRole($m);
                 }
+                $uch = new Usercreatehistory;
+                $uch->user_id = $u->id;
+                $uch->created_by_user_id = Auth::id();
+                $uch->last_modified_by_user_id = Auth::id();
+                $uch->save();
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -268,16 +277,20 @@ class ACLController extends Controller
                 ]);
                 $u->password = bcrypt($request->password);
             }
-
             DB::beginTransaction();
             try {
                 $u->name = $request->name;
                 $u->email = $request->email;
                 $u->update();
-                foreach ($request->role as $m) {
-                    $p[] = Role::find($m);
+                // $u->syncRoles([$request->roles[0], $request->roles[1]]);
+                // syncRoles() does not work with associative array, not even with default keys like 0 1 2 ...
+                $u->detachRoles();
+                foreach ($request->roles as $m) {
+                    $u->attachRole($m);
                 }
-                $u->syncRoles([$p]);
+                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch->last_modified_by_user_id = Auth::id();
+                $uch->update();
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -295,5 +308,79 @@ class ACLController extends Controller
             abort(403);
         }
     }
+
+
+    public function makeUserInactive($uid)
+    {
+        if (Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin')) {
+            $u = User::find($uid);
+            DB::beginTransaction();
+            try {
+                $u->detachRoles();
+                $u->attachRole(1);
+                DB::commit();
+                $success = true;
+            } catch (\Exception $e) {
+                $success = false;
+                DB::rollback();
+            }
+            if ($success) {
+                Session::flash('success', "$u->name is now Inactive.");
+                return redirect()->back();
+            } else {
+                Session::flash('unSuccess', "Something went wrong :(");
+                return redirect()->back();
+            }
+        } else {
+            abort(403);
+        }
+    }
+
+
+    public function makeUserActive($uid)
+    {
+        if (Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin')) {
+            $user = User::find($uid);
+            $roles = Role::where('id', '>', '3')->get();
+            return view('users.active', compact('user', 'roles'));
+        } else {
+            abort(403);
+        }
+    }
+
+
+    public function makeUserActiveUpdate(Request $request, $uid)
+    {
+        if (Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin')) {
+            $this->validate($request, [
+                'roles' => 'required',
+            ]);
+            $u = User::find($uid);
+            DB::beginTransaction();
+            try {
+                $u->detachRoles();
+                foreach ($request->roles as $m) {
+                    $u->attachRole($m);
+                }
+                DB::commit();
+                $success = true;
+            } catch (\Exception $e) {
+                $success = false;
+                DB::rollback();
+            }
+            if ($success) {
+                Session::flash('success', "$u->name is now Active.");
+                return redirect()->route('users');
+            } else {
+                Session::flash('unSuccess', "Something went wrong :(");
+                return redirect()->back();
+            }
+        } else {
+            abort(403);
+        }
+    }
+
+
+
 
 }
