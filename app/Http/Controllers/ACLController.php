@@ -189,7 +189,7 @@ class ACLController extends Controller
     {
         if (Auth::user()->isAbleTo('user')) {
             $users = User::where('id', '>', '3')->get();
-            foreach ($users as $u){
+            foreach ($users as $u) {
                 $u['role'] = $u->roles()->get();
             }
             $roles = Role::where('id', '>', '3')->get();
@@ -206,19 +206,20 @@ class ACLController extends Controller
             $this->validate($request, [
                 'name' => 'required',
                 'email' => 'required|unique:users,email',
-                'password' => 'required|confirmed',
-                'roles' => 'required',
+//                'password' => 'required|confirmed',
+//                'roles' => 'required',
             ]);
             DB::beginTransaction();
             try {
                 $u = new User;
                 $u->name = $request->name;
                 $u->email = $request->email;
-                $u->password = bcrypt($request->password);
+//                $u->password = bcrypt($request->password);
                 $u->save();
-                foreach ($request->roles as $m) {
-                    $u->attachRole($m);
-                }
+//                foreach ($request->roles as $m) {
+//                    $u->attachRole($m);
+//                }
+                $u->attachRole(1);
                 $uch = new Usercreatehistory;
                 $uch->user_id = $u->id;
                 $uch->created_by_user_id = Auth::id();
@@ -231,7 +232,7 @@ class ACLController extends Controller
                 DB::rollback();
             }
             if ($success) {
-                Session::flash('success', "The User '$request->name' has been created successfully.");
+                Session::flash('success', "The User '$request->name' has been created successfully with inactive status.");
                 return redirect()->back();
             } else {
                 Session::flash('unSuccess', "Something went wrong :(");
@@ -318,6 +319,9 @@ class ACLController extends Controller
             try {
                 $u->detachRoles();
                 $u->attachRole(1);
+                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch->last_modified_by_user_id = Auth::id();
+                $uch->update();
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -362,6 +366,60 @@ class ACLController extends Controller
                 foreach ($request->roles as $m) {
                     $u->attachRole($m);
                 }
+                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch->last_modified_by_user_id = Auth::id();
+                $uch->update();
+
+//                $u->password = bcrypt('123456789');
+//                $u->update();
+
+                // send email
+//                $email = $u->email;
+//                $subject = 'Twinbit Panel Status Active Now';
+//                $message = '
+//                    <html>
+//                    <head>
+//                      <title>Twinbit Panel Status Active Now</title>
+//                    </head>
+//                    <body>
+//                        <h3>Twinbit Panel Status Active Now</h3>
+//                        <div>
+//                            <table>
+//                                <thead>
+//                                    <tr>
+//                                        <th>Your new temporary password is 123456789 .</th>
+//                                    </tr>
+//                                </thead>
+//                                <tbody>
+//                                    <tr>
+//                                        <td>Just login with your new password.</td>
+//                                    </tr>
+//                                    <tr>
+//                                        <td>You can reset the password from settings after login with this password.</td>
+//                                    </tr>
+//                                </tbody>
+//                            </table>
+//                        </div>
+//                        <div style="margin-top: 20px;">
+//                        <table>
+//                        <tr>
+//                            <td>With Love,</td>
+//                        </tr>
+//                        <tr>
+//                            <td>Twinbit</td>
+//                        </tr>
+//                        </table>
+//                        </div>
+//                    </body>
+//                    </html>
+//                    ';
+//                $headers[] = 'MIME-Version: 1.0';
+//                $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+//                //$headers[] = 'To: Mary <mary@example.com>, Kelly <kelly@example.com>';
+//                $headers[] = 'From: Spice Mall <no_reply@twinbit.com>';
+//                //$headers[] = 'Cc: birthdayarchive@example.com';
+//                //$headers[] = 'Bcc: birthdaycheck@example.com';
+//                mail($email, $subject, $message, implode("\r\n", $headers));
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -379,8 +437,6 @@ class ACLController extends Controller
             abort(403);
         }
     }
-
-
 
 
 }
