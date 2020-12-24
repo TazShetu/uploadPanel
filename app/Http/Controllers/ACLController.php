@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Usercreatehistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -215,6 +216,11 @@ class ACLController extends Controller
                 foreach ($request->roles as $m) {
                     $u->attachRole($m);
                 }
+                $uch = new Usercreatehistory;
+                $uch->user_id = $u->id;
+                $uch->created_by_user_id = Auth::id();
+                $uch->last_modified_by_user_id = Auth::id();
+                $uch->save();
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -268,16 +274,20 @@ class ACLController extends Controller
                 ]);
                 $u->password = bcrypt($request->password);
             }
-
             DB::beginTransaction();
             try {
                 $u->name = $request->name;
                 $u->email = $request->email;
                 $u->update();
-                foreach ($request->role as $m) {
-                    $p[] = Role::find($m);
+                // $u->syncRoles([$request->roles[0], $request->roles[1]]);
+                // syncRoles() does not work with associative array, not even with default keys like 0 1 2 ...
+                $u->detachRoles();
+                foreach ($request->roles as $m) {
+                    $u->attachRole($m);
                 }
-                $u->syncRoles([$p]);
+                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch->last_modified_by_user_id = Auth::id();
+                $uch->update();
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
