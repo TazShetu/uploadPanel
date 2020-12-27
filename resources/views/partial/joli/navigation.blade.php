@@ -6,6 +6,9 @@
     <li class="xn-icon-button pull-right">
         <a href="javascript: void (0)" class="mb-control" data-box="#mb-signout"><span class="fa fa-sign-out"></span></a>
     </li>
+    <li class="xn-icon-button pull-right">
+        <a href="{{route('account.settings', ['uid' => Auth::id()])}}"><span class="fa fa-gears"></span></a>
+    </li>
 </ul>
 
 <!-- Logout MESSAGE BOX-->

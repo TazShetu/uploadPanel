@@ -20,4 +20,10 @@
 
 <strong> ACL </strong> 
 
-Documentation coming soon
+- Permissions are hard coded but you can edit display name and description.
+- Roles are completely dynamic. You can create as many role as you want and assign permissions accordingly. <i>Be careful of assigning ACL related permissions to any role and user.</i> 
+- User menu is completely dynamic too. First create user with name and email. After the initial creation user will be in inactive stage. Second make them active with proper role.
+- User will get an email with auto generated password for initial log in. After login they can change password from account settings option.
+- You can make user active or inactive anytime from ACL menu.
+
+<strong> Next Menu is coming soon </strong> 
