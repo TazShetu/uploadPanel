@@ -97,7 +97,7 @@
                         <h3 class="panel-title">Details Settings</h3>
                     </div>
                     {{--     Form Start              --}}
-                    <form action="{{route('account.settings.update.info')}}" class="form-horizontal"
+                    <form action="{{route('account.settings.update.info', ['uid' =>Auth::id()])}}" class="form-horizontal"
                           method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="panel-body">

@@ -23,8 +23,8 @@ class UserController extends Controller
             foreach ($users as $u) {
                 $u['role'] = $u->roles()->get();
             }
-            $roles = Role::where('id', '>', '3')->get();
-            return view('users.index', compact('users', 'roles'));
+//            $roles = Role::where('id', '>', '3')->get();
+            return view('users.index', compact('users'));
         } else {
             abort(403);
         }
@@ -85,7 +85,9 @@ class UserController extends Controller
             $users = User::where('id', '>', '3')->get();
             $roles = Role::where('id', '>', '3')->get();
             $redits = $uedit->roles()->get();
-            return view('users.edit', compact('users', 'uedit', 'roles', 'redits'));
+            $uinfo = Userinfo::where('user_id', $uid)->first();
+            $datalist['designation'] = DB::select(DB::raw('SELECT job_title FROM user_infos GROUP BY job_title'));
+            return view('users.edit', compact('users', 'uedit', 'roles', 'redits', 'uinfo', 'datalist'));
         } else {
             abort(403);
         }
@@ -241,8 +243,13 @@ class UserController extends Controller
     {
         $uid = Auth::id();
         $uedit = User::find($uid);
-        $uinfo = Userinfo::where('user_id', $uid)->first();
-        return view('users.accountSettings', compact('uedit', 'uinfo'));
+        $redits = $uedit->roles()->get();
+        if (($redits[0]->id) != 1) {
+            $uinfo = Userinfo::where('user_id', $uid)->first();
+            return view('users.accountSettings', compact('uedit', 'uinfo'));
+        } else {
+            abort(403);
+        }
     }
 
 
@@ -262,6 +269,62 @@ class UserController extends Controller
         $u->update();
         Session::flash('success', "Your account has been updated successfully.");
         return redirect()->back();
+    }
+
+
+    public function accountSettingsUpdateInfo(Request $request, $uid)
+    {
+        DB::beginTransaction();
+        try {
+            $u = UserInfo::where('user_id', $uid)->first();
+            $u->date_of_birth = $request->date_of_birth;
+            $u->mobile_1 = $request->mobile_1;
+            $u->mobile_2 = $request->mobile_2;
+            $u->job_title = $request->job_title;
+            $u->job_description = $request->job_description;
+            $u->address = $request->address;
+            $u->education = $request->education;
+            $u->employment = $request->employment;
+            $u->skills = $request->skills;
+            if ($request->is_designation) {
+                $u->job_title = $request->job_title;
+            }
+//            if ($request->hasFile('cv')) {
+//                if ($u->cv) {
+//                    unlink($u->cv);
+//                }
+//                $img = $request->cv;
+//                $img_name = time() . $img->getClientOriginalName();
+//                $a = $img->move('uploads/users/cv', $img_name);
+//                $d = 'uploads/users/cv/' . $img_name;
+//                $u->cv = $d;
+//            }
+            $u->update();
+            if ($request->hasFile('image')) {
+                $user = User::find($uid);
+                if ($user->profile_photo_path) {
+                    unlink($user->profile_photo_path);
+                }
+                $img = $request->image;
+                $img_name = time() . $img->getClientOriginalName();
+                $a = $img->move('uploads/users/images', $img_name);
+                $d = 'uploads/users/images/' . $img_name;
+                $user->profile_photo_path = $d;
+                $user->update();
+            }
+            DB::commit();
+            $success = true;
+        } catch (\Exception $e) {
+            $success = false;
+            DB::rollback();
+        }
+        if ($success) {
+            Session::flash('success', "Account has been updated successfully.");
+            return redirect()->back();
+        } else {
+            Session::flash('unSuccess', "Something went wrong :(");
+            return redirect()->back();
+        }
     }
 
 
