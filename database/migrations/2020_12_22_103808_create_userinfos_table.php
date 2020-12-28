@@ -6,24 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateUserinfosTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('userinfos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->index();
+            $table->date('date_of_birth')->nullable();
+            $table->string('mobile_1')->nullable();
+            $table->string('mobile_2')->nullable();
+            $table->string('job_title')->nullable();
+            $table->text('job_description')->nullable();
+            $table->text('address')->nullable();
+            $table->text('education')->nullable();
+            $table->text('employment')->nullable();
+            $table->string('skills')->nullable();
+            $table->string('cv')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('userinfos');

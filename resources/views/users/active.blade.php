@@ -46,8 +46,7 @@ Make {{$user->name}} Active
                             </div>
                         </div>
                         <div class="panel-footer">
-                            <a title="refresh" class="btn btn-default back" data-link="{{route('back')}}"><span
-                                    class="fa fa-refresh"></span></a>
+                            <a href="{{route('users')}}" title="Back" class="btn btn-default">Back</a>
                             <button class="btn btn-primary pull-right">Active</button>
                         </div>
                     </div>
