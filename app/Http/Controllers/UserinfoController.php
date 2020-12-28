@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Userinfo;
+use App\Models\UserInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
-class UserinfoController extends Controller
+class UserInfoController extends Controller
 {
 
     public function accountSettingsUpdateInfo(Request $request)
@@ -16,7 +16,7 @@ class UserinfoController extends Controller
         DB::beginTransaction();
         try {
             $uid = Auth::id();
-            $u = Userinfo::where('user_id', $uid)->first();
+            $u = UserInfo::where('user_id', $uid)->first();
             $u->date_of_birth = $request->date_of_birth;
             $u->mobile_1 = $request->mobile_1;
             $u->mobile_2 = $request->mobile_2;
@@ -62,13 +62,7 @@ class UserinfoController extends Controller
             Session::flash('unSuccess', "Something went wrong :(");
             return redirect()->back();
         }
-
-
-
-
     }
-
-
 
 
 

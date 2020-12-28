@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ACLController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\UserinfoController;
+use App\Http\Controllers\UserInfoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('/users_account_settings', [UserController::class, 'accountSettings'])->name('account.settings');
     Route::post('/users_account_settings', [UserController::class, 'accountSettingsUpdate'])->name('account.settings.update');
-    Route::post('/users_account_settings_info', [UserinfoController::class, 'accountSettingsUpdateInfo'])->name('account.settings.update.info');
+    Route::post('/users_account_settings_info', [UserInfoController::class, 'accountSettingsUpdateInfo'])->name('account.settings.update.info');
 
 
 

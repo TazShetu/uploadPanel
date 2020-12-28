@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\TwinbitActivationEmailClass;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Usercreatehistory;
+use App\Models\UserCreateHistory;
 use App\Models\Userinfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +51,7 @@ class UserController extends Controller
 //                    $u->attachRole($m);
 //                }
                 $u->attachRole(1);
-                $uch = new Usercreatehistory;
+                $uch = new UserCreateHistory;
                 $uch->user_id = $u->id;
                 $uch->created_by_user_id = Auth::id();
                 $uch->last_modified_by_user_id = Auth::id();
@@ -130,7 +130,7 @@ class UserController extends Controller
                         $u->attachRole($m);
                     }
                 }
-                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch = UserCreateHistory::where('user_id', $uid)->first();
                 $uch->last_modified_by_user_id = Auth::id();
                 $uch->update();
                 DB::commit();
@@ -160,7 +160,7 @@ class UserController extends Controller
             try {
                 $u->detachRoles();
                 $u->attachRole(1);
-                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch = UserCreateHistory::where('user_id', $uid)->first();
                 $uch->last_modified_by_user_id = Auth::id();
                 $uch->update();
                 DB::commit();
@@ -207,7 +207,7 @@ class UserController extends Controller
                 foreach ($request->roles as $m) {
                     $u->attachRole($m);
                 }
-                $uch = Usercreatehistory::where('user_id', $uid)->first();
+                $uch = UserCreateHistory::where('user_id', $uid)->first();
                 $uch->last_modified_by_user_id = Auth::id();
                 $uch->update();
                 $password = '123456789';
