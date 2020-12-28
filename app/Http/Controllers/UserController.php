@@ -6,6 +6,7 @@ use App\Mail\TwinbitActivationEmailClass;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Usercreatehistory;
+use App\Models\Userinfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class UserController extends Controller
     public function users()
     {
         if (Auth::user()->isAbleTo('user')) {
-            $users = User::where('id', '>', '3')->get();
+            $users = User::where('id', '>', '1')->get();
             foreach ($users as $u) {
                 $u['role'] = $u->roles()->get();
             }
@@ -55,6 +56,9 @@ class UserController extends Controller
                 $uch->created_by_user_id = Auth::id();
                 $uch->last_modified_by_user_id = Auth::id();
                 $uch->save();
+                $uinfo = new Userinfo;
+                $uinfo->user_id = $u->id;
+                $uinfo->save();
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -94,9 +98,14 @@ class UserController extends Controller
             $this->validate($request, [
                 'name' => 'required',
                 'email' => 'required',
-                'roles' => 'required',
             ]);
             $u = User::find($uid);
+            $redits = $u->roles()->get();
+            if (($redits[0]->id) != 1) {
+                $this->validate($request, [
+                    'roles' => 'required',
+                ]);
+            }
             if ($u->email != $request->email) {
                 $this->validate($request, [
                     'email' => 'unique:users,email',
@@ -113,11 +122,13 @@ class UserController extends Controller
                 $u->name = $request->name;
                 $u->email = $request->email;
                 $u->update();
-                // $u->syncRoles([$request->roles[0], $request->roles[1]]);
-                // syncRoles() does not work with associative array, not even with default keys like 0 1 2 ...
-                $u->detachRoles();
-                foreach ($request->roles as $m) {
-                    $u->attachRole($m);
+                if (($redits[0]->id) != 1) {
+                    // $u->syncRoles([$request->roles[0], $request->roles[1]]);
+                    // syncRoles() does not work with associative array, not even with default keys like 0 1 2 ...
+                    $u->detachRoles();
+                    foreach ($request->roles as $m) {
+                        $u->attachRole($m);
+                    }
                 }
                 $uch = Usercreatehistory::where('user_id', $uid)->first();
                 $uch->last_modified_by_user_id = Auth::id();
@@ -206,7 +217,7 @@ class UserController extends Controller
                     'email' => "$u->email",
                     'password' => "$password"
                 ];
-                Mail::to("$u->email")->send(new TwinbitActivationEmailClass($emailDetails));
+//                Mail::to("$u->email")->send(new TwinbitActivationEmailClass($emailDetails));
                 DB::commit();
                 $success = true;
             } catch (\Exception $e) {
@@ -226,19 +237,21 @@ class UserController extends Controller
     }
 
 
-    public function accountSettings($uid)
+    public function accountSettings()
     {
+        $uid = Auth::id();
         $uedit = User::find($uid);
-        return view('users.accountSettings', compact('uedit'));
+        $uinfo = Userinfo::where('user_id', $uid)->first();
+        return view('users.accountSettings', compact('uedit', 'uinfo'));
     }
 
 
-    public function accountSettingsUpdate(Request $request, $uid)
+    public function accountSettingsUpdate(Request $request)
     {
         $request->validate([
             'name' => 'required',
         ]);
-        $u = User::find($uid);
+        $u = User::find(Auth::id());
         if ($request->filled('password') || $request->filled('password_confirmation')) {
             $this->validate($request, [
                 'password' => 'required|confirmed',
@@ -250,8 +263,6 @@ class UserController extends Controller
         Session::flash('success', "Your account has been updated successfully.");
         return redirect()->back();
     }
-
-
 
 
 }

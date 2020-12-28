@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ACLController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserinfoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,8 +62,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/make_user_active/{uid}', [UserController::class, 'makeUserActive'])->name('make.user.active');
     Route::post('/make_user_active/{uid}', [UserController::class, 'makeUserActiveUpdate'])->name('make.user.active');
 
-    Route::get('/users_account_settings/{uid}', [UserController::class, 'accountSettings'])->name('account.settings');
-    Route::post('/users_account_settings/{uid}', [UserController::class, 'accountSettingsUpdate'])->name('account.settings.update');
+    Route::get('/users_account_settings', [UserController::class, 'accountSettings'])->name('account.settings');
+    Route::post('/users_account_settings', [UserController::class, 'accountSettingsUpdate'])->name('account.settings.update');
+    Route::post('/users_account_settings_info', [UserinfoController::class, 'accountSettingsUpdateInfo'])->name('account.settings.update.info');
 
 
 

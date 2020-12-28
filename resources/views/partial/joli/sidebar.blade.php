@@ -14,7 +14,14 @@
             </a>
             <div class="profile">
                 <div class="profile-image">
-                    <img src="{{asset('joli/avatar.png')}}" alt="Full Name">
+                    <img
+                        src="
+                    @if(Auth::user()->profile_photo_path)
+                    {{asset(Auth::user()->profile_photo_path)}}
+                    @else
+                        {{asset('joli/avatar.png')}}
+                    @endif
+                        " alt="Profile Image">
                 </div>
                 <div class="profile-data">
                     <div class="profile-data-name">{{Auth::user()->name}}</div>
@@ -30,13 +37,13 @@
             <a href="#"><span class="glyphicon glyphicon-transfer"></span> <span class="xn-text"> ACL</span></a>
             <ul>
                 @permission('permission')
-                <li><a href="{{route('permission')}}"><i class="glyphicon glyphicon-minus"></i> Permission</a></li>
+                <li><a href="{{route('permission')}}"><i class="glyphicon glyphicon-minus"></i> Permissions</a></li>
                 @endpermission
                 @permission('role')
-                <li><a href="{{route('role')}}"><i class="glyphicon glyphicon-minus"></i> Role</a></li>
+                <li><a href="{{route('role')}}"><i class="glyphicon glyphicon-minus"></i> Roles</a></li>
                 @endpermission
                 @permission('user')
-                <li><a href="{{route('users')}}"><i class="glyphicon glyphicon-minus"></i> User</a>
+                <li><a href="{{route('users')}}"><i class="glyphicon glyphicon-minus"></i> Users</a>
                 </li>
                 @endpermission
             </ul>

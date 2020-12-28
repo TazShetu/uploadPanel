@@ -69,28 +69,31 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-3 col-xs-12 control-label padding-top-0">Role</label>
-                            <div class="col-md-6 col-xs-12">
-                                @if($errors->has('roles'))
-                                    <span class="help-block text-danger"><strong>Please select at least a Role</strong></span>
-                                @endif
-                                @foreach($roles as $role)
-                                    <div class="form-check form-check-inline d-block">
-                                        <input class="form-check-input" type="checkbox" value="{{$role->id}}"
-                                               name="roles[]"
-                                               @foreach($redits as $pe)
-                                               @if(($pe->id * 1) == ($role->id * 1))
-                                               checked
-                                            @break
-                                            @endif
-                                            @endforeach
-                                        >
-                                        <label class="text-secondary">{{$role->display_name}}</label>
-                                    </div>
-                                @endforeach
+                        @if(($redits[0]->id) != 1)
+                            <div class="form-group">
+                                <label class="col-md-3 col-xs-12 control-label padding-top-0">Role</label>
+                                <div class="col-md-6 col-xs-12">
+                                    @if($errors->has('roles'))
+                                        <span
+                                            class="help-block text-danger"><strong>Please select at least a Role</strong></span>
+                                    @endif
+                                    @foreach($roles as $role)
+                                        <div class="form-check form-check-inline d-block">
+                                            <input class="form-check-input" type="checkbox" value="{{$role->id}}"
+                                                   name="roles[]"
+                                                   @foreach($redits as $pe)
+                                                   @if(($pe->id * 1) == ($role->id * 1))
+                                                   checked
+                                                @break
+                                                @endif
+                                                @endforeach
+                                            >
+                                            <label class="text-secondary">{{$role->display_name}}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                     <div class="panel-footer">
                         <a title="refresh" class="btn btn-default back" data-link="{{route('back')}}"><span

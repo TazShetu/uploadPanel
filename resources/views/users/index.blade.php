@@ -135,25 +135,25 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if(($u->role[0]->id) != 1)
+                                    @if(($u->id) > 3)
                                         <a href="{{route('user.edit', ['uid' => $u->id])}}"
                                            class="btn btn-sm btn-success"><span class="fa fa-pencil"></span></a>
+                                        @if(Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin'))
+                                            @if(($u->role[0]->id) != 1)
+                                                <a href="{{route('make.user.in.active', ['uid' => $u->id])}}"
+                                                   class="btn btn-sm btn-danger ml-1"
+                                                   onclick="return confirm('Are you sure you want to make {{$u->name}} inactive ?')">Make
+                                                    Inactive</a>
+                                            @else
+                                                <a href="{{route('make.user.active', ['uid' => $u->id])}}"
+                                                   class="btn btn-sm btn-warning ml-1"
+                                                   onclick="return confirm('Are you sure you want to make {{$u->name}} active ?')">Make
+                                                    Active</a>
+                                            @endif
+                                        @endif
                                     @else
                                         <a href="#" class="btn btn-sm btn-success disabled"><span
                                                 class="fa fa-pencil"></span></a>
-                                    @endif
-                                    @if(Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin'))
-                                        @if(($u->role[0]->id) != 1)
-                                            <a href="{{route('make.user.in.active', ['uid' => $u->id])}}"
-                                               class="btn btn-sm btn-danger ml-1"
-                                               onclick="return confirm('Are you sure you want to make {{$u->name}} inactive ?')">Make
-                                                Inactive</a>
-                                        @else
-                                            <a href="{{route('make.user.active', ['uid' => $u->id])}}"
-                                               class="btn btn-sm btn-warning ml-1"
-                                               onclick="return confirm('Are you sure you want to make {{$u->name}} active ?')">Make
-                                                Active</a>
-                                        @endif
                                     @endif
                                 </td>
                             </tr>
