@@ -14,6 +14,8 @@ class PermissionsTableSeeder extends Seeder
             0 => ["permission", "Permission", "Permission menu that goes under ACL"],
             1 => ["role", "Role", "Role menu that goes under ACL"],
             2 => ["user", "User", "User menu that goes under ACL"],
+            3 => ["image_category", "Image Category", "Category menu that goes under Images"],
+            4 => ["image_vendor", "Image Vendor", "Vendor menu that goes under Images"],
         ];
         $superAdmin = Role::find(2);
         $admin = Role::find(3);

@@ -15,7 +15,7 @@ class CreateUserCreateHistoriesTable extends Migration
     {
         Schema::create('user_create_histories', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->unique();
+            $table->integer('user_id')->unique()->index();
             $table->integer('created_by_user_id');
             $table->integer('last_modified_by_user_id');
             $table->timestamps();

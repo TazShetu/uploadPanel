@@ -70,10 +70,14 @@ class ACLController extends Controller
     {
         if (Auth::user()->isAbleTo('role') && ($rid * 1) > 3) {
             $redit = Role::find($rid);
-            $roles = Role::where('id', '>', '3')->get();
-            $permissions = Permission::all();
-            $pedits = $redit->permissions()->get();
-            return view('role.edit', compact('redit', 'roles', 'permissions', 'pedits'));
+            if ($redit) {
+                $roles = Role::where('id', '>', '3')->get();
+                $permissions = Permission::all();
+                $pedits = $redit->permissions()->get();
+                return view('role.edit', compact('redit', 'roles', 'permissions', 'pedits'));
+            } else {
+                abort(404);
+            }
         } else {
             abort(403);
         }
@@ -127,14 +131,18 @@ class ACLController extends Controller
     {
         if (Auth::user()->isAbleTo('role') && (($rid * 1) > 3)) {
             $r = Role::find($rid);
-            $a = User::whereRoleIs([$r->name])->get();
-            if (count($a) > 0) {
-                Session::flash('unSuccess', "Can not delete Role with assigned users !");
-                return redirect()->back();
+            if ($r) {
+                $a = User::whereRoleIs([$r->name])->get();
+                if (count($a) > 0) {
+                    Session::flash('unSuccess', "Can not delete Role with assigned users !");
+                    return redirect()->back();
+                } else {
+                    $r->delete();
+                    Session::flash('success', "The Role has bees deleted successfully");
+                    return redirect()->back();
+                }
             } else {
-                $r->delete();
-                Session::flash('success', "The Role has bees deleted successfully");
-                return redirect()->back();
+                abort(404);
             }
         } else {
             abort(403);
@@ -157,8 +165,12 @@ class ACLController extends Controller
     {
         if (Auth::user()->isAbleTo('permission')) {
             $pedit = Permission::find($pid);
-            $ps = Permission::all();
-            return view('permission.edit', compact('ps', 'pedit'));
+            if ($pedit) {
+                $ps = Permission::all();
+                return view('permission.edit', compact('ps', 'pedit'));
+            } else {
+                abort(404);
+            }
         } else {
             abort(403);
         }

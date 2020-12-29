@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ACLController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ImageCategoryController;
+use App\Http\Controllers\ImageVendorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +33,6 @@ Route::get('/refresh', function () {
 //Route::get('/testlogout', function () {
 //    return view('test/testout');
 //});
-//Route::get('/send-email', [EmailController::class, 'sendEmail']);
-
-
 
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -62,11 +61,26 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::post('/make_user_active/{uid}', [UserController::class, 'makeUserActiveUpdate'])->name('make.user.active');
 
     Route::get('/users_account_settings', [UserController::class, 'accountSettings'])->name('account.settings');
-    Route::post('/users_account_settings', [UserController::class, 'accountSettingsUpdate'])->name('account.settings.update');
-    Route::post('/users_account_settings_info/{uid}', [UserController::class, 'accountSettingsUpdateInfo'])->name('account.settings.update.info');
+    Route::post('/users_account_settings', [UserController::class, 'accountSettingsUpdate'])
+        ->name('account.settings.update');
+    Route::post('/users_account_settings_info/{uid}', [UserController::class, 'accountSettingsUpdateInfo'])
+        ->name('account.settings.update.info');
 
+    Route::get('/images/category', [ImageCategoryController::class, 'index'])->name('image.category');
+    Route::post('/images/category', [ImageCategoryController::class, 'store'])->name('image.category.store');
+    Route::get('/images/category/edit/{cid}', [ImageCategoryController::class, 'edit'])->name('image.category.edit');
+    Route::post('/images/category/edit/{cid}', [ImageCategoryController::class, 'update'])
+        ->name('image.category.update');
+    Route::delete('/images/category/delete/{cid}', [ImageCategoryController::class, 'destroy'])
+        ->name('image.category.delete');
 
-
+    Route::get('/images/vendor', [ImageVendorController::class, 'index'])->name('image.vendor');
+    Route::post('/images/vendor', [ImageVendorController::class, 'store'])->name('image.vendor.store');
+    Route::get('/images/vendor/edit/{vid}', [ImageVendorController::class, 'edit'])->name('image.vendor.edit');
+    Route::post('/images/vendor/edit/{vid}', [ImageVendorController::class, 'update'])
+        ->name('image.vendor.update');
+    Route::delete('/images/vendor/delete/{vid}', [ImageVendorController::class, 'destroy'])
+        ->name('image.vendor.delete');
 
 
 });

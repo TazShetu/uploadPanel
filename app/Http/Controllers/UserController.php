@@ -82,12 +82,16 @@ class UserController extends Controller
     {
         if (Auth::user()->isAbleTo('user') && ($uid * 1) > 3) {
             $uedit = User::find($uid);
-            $users = User::where('id', '>', '3')->get();
-            $roles = Role::where('id', '>', '3')->get();
-            $redits = $uedit->roles()->get();
-            $uinfo = Userinfo::where('user_id', $uid)->first();
-            $datalist['designation'] = DB::select(DB::raw('SELECT job_title FROM user_infos GROUP BY job_title'));
-            return view('users.edit', compact('users', 'uedit', 'roles', 'redits', 'uinfo', 'datalist'));
+            if ($uedit) {
+                $users = User::where('id', '>', '3')->get();
+                $roles = Role::where('id', '>', '3')->get();
+                $redits = $uedit->roles()->get();
+                $uinfo = Userinfo::where('user_id', $uid)->first();
+                $datalist['designation'] = DB::select(DB::raw('SELECT job_title FROM user_infos GROUP BY job_title'));
+                return view('users.edit', compact('users', 'uedit', 'roles', 'redits', 'uinfo', 'datalist'));
+            } else {
+                abort(404);
+            }
         } else {
             abort(403);
         }
@@ -158,25 +162,29 @@ class UserController extends Controller
     {
         if (Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin')) {
             $u = User::find($uid);
-            DB::beginTransaction();
-            try {
-                $u->detachRoles();
-                $u->attachRole(1);
-                $uch = UserCreateHistory::where('user_id', $uid)->first();
-                $uch->last_modified_by_user_id = Auth::id();
-                $uch->update();
-                DB::commit();
-                $success = true;
-            } catch (\Exception $e) {
-                $success = false;
-                DB::rollback();
-            }
-            if ($success) {
-                Session::flash('success', "$u->name is now Inactive.");
-                return redirect()->back();
+            if ($u) {
+                DB::beginTransaction();
+                try {
+                    $u->detachRoles();
+                    $u->attachRole(1);
+                    $uch = UserCreateHistory::where('user_id', $uid)->first();
+                    $uch->last_modified_by_user_id = Auth::id();
+                    $uch->update();
+                    DB::commit();
+                    $success = true;
+                } catch (\Exception $e) {
+                    $success = false;
+                    DB::rollback();
+                }
+                if ($success) {
+                    Session::flash('success', "$u->name is now Inactive.");
+                    return redirect()->back();
+                } else {
+                    Session::flash('unSuccess', "Something went wrong :(");
+                    return redirect()->back();
+                }
             } else {
-                Session::flash('unSuccess', "Something went wrong :(");
-                return redirect()->back();
+                abort(404);
             }
         } else {
             abort(403);
@@ -188,8 +196,12 @@ class UserController extends Controller
     {
         if (Auth::user()->hasRole('super_admin') || Auth::user()->hasRole('admin')) {
             $user = User::find($uid);
-            $roles = Role::where('id', '>', '3')->get();
-            return view('users.active', compact('user', 'roles'));
+            if ($user) {
+                $roles = Role::where('id', '>', '3')->get();
+                return view('users.active', compact('user', 'roles'));
+            } else {
+                abort(404);
+            }
         } else {
             abort(403);
         }
